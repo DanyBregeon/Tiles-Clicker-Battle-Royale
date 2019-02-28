@@ -41,6 +41,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   numBuilding: 2
+  maxBuildingOfThisType: 16
   cdReady: 0
 --- !u!114 &114479457990731418
 MonoBehaviour:

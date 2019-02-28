@@ -41,6 +41,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   numBuilding: 0
+  maxBuildingOfThisType: 16
+  cdReady: 0
 --- !u!114 &114767274701309402
 MonoBehaviour:
   m_ObjectHideFlags: 1

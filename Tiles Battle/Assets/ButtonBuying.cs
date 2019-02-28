@@ -21,13 +21,13 @@ public class ButtonBuying : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		if(price > board.Score)
+		if(price <= board.Score && !(prefabBuild.GetComponent<Building>().numBuilding == 4 && board.buildingNovaIsBuild) && !(prefabBuild.GetComponent<Building>().numBuilding == 5 && board.buildingUltimeIsBuild))
         {
-            priceText.color = new Color(0.8f, 0, 0);
+            priceText.color = new Color(0.5f, 1, 0);
         }
         else
         {
-            priceText.color = new Color(0.5f, 1, 0);
+            priceText.color = new Color(0.8f, 0, 0);
         }
         if (Input.GetKeyDown(shortcut))
         {
@@ -43,7 +43,7 @@ public class ButtonBuying : MonoBehaviour {
             board.isBuilding = false;
             Destroy(board.buildingImg);
         }
-        else if (board.Score >= price)
+        else if (board.Score >= price && !(prefabBuild.GetComponent<Building>().numBuilding == 4 && board.buildingNovaIsBuild) && !(prefabBuild.GetComponent<Building>().numBuilding == 5 && board.buildingUltimeIsBuild))
         {
             if (board.isBuilding)
             {

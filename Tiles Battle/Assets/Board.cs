@@ -17,16 +17,16 @@ public class Board : MonoBehaviour {
     public static int[] buildingPrice;
     public static int generatorIncome = 10;
     public static int bonusDefenseMissileLauncher = 5;
-    public static int nbShieldCore = 3;
+    public static int nbShieldCore = 5;
     public static float cdMissileLauncher = 15;
     public static float cdLaser = 45;
     public static float cdNova = 60;
     public static float cdUltime = 60;
-    public static float baseARTime = 2;
+    public static float baseARTime = 1.5f;
     public static int nbPlayer = 17;
     public static int nbTileDestroyToLose = 5;
-    public static int bonusDefenseFocus = 25;
-    public static int bonusAttackFocus = 10;
+    public static int bonusDefenseFocus = 50;
+    public static int bonusAttackFocus = 25;
     private float maxFontSize;
     [SerializeField]
     private TMP_Text scoreText;
@@ -47,6 +47,7 @@ public class Board : MonoBehaviour {
     public AudioClip soundUltimeAttack;
     public AudioClip soundBadgeWin;
     public AudioClip soundKillOpponent;
+    public AudioClip soundShieldBlock;
     public AudioClip soundGameOver;
     public AudioClip soundWin;
 
@@ -69,6 +70,7 @@ public class Board : MonoBehaviour {
     private int nbShield;
     private int currentNbShield;
     public GameObject shieldImg;
+    private AudioSource shieldAudioSource;
     private TMP_Text shieldText;
     private int pourcentageAttackBonus;
     public GameObject attackImg;
@@ -78,9 +80,18 @@ public class Board : MonoBehaviour {
     private TMP_Text defenseText;
     private int nbChevron;
     public GameObject chevronImg;
+    private AudioSource chevronAudioSource;
     private TMP_Text chevronText;
     public Image chevronGauche;
     public Image chevronDroit;
+
+    public bool buildingNovaIsBuild;
+    public bool buildingUltimeIsBuild;
+
+    private float baseCdMissileLauncher;
+    private float baseCdLaser;
+    private float baseCdNova;
+    private float baseCdUltime;
 
     public static int lastHitBy;
 
@@ -283,6 +294,11 @@ public class Board : MonoBehaviour {
             //fill amount max = 0.75, fill amount min = 0.2
             chevronGauche.fillAmount = 0.2f + 0.55f * ((float)nbChevron / 100f);
             chevronDroit.fillAmount = 0.2f + 0.55f * ((float)nbChevron / 100f);
+            //shieldAudioSource.clip = soundBadgeWin;
+            if(nbChevron > 0 && nbChevron < 100)
+            {
+                shieldAudioSource.PlayOneShot(soundBadgeWin);
+            }
         }
     }
 
@@ -303,6 +319,8 @@ public class Board : MonoBehaviour {
             else
             {
                 shieldText.text = currentNbShield + "/" + NbShield;
+                //shieldAudioSource.clip = soundShieldBlock;
+                shieldAudioSource.PlayOneShot(soundShieldBlock);
             }
         }
     }
@@ -320,6 +338,19 @@ public class Board : MonoBehaviour {
         }
     }
 
+    public AudioSource ChevronAudioSource
+    {
+        get
+        {
+            return chevronAudioSource;
+        }
+
+        set
+        {
+            chevronAudioSource = value;
+        }
+    }
+
     private void Awake()
     {
         isAlive = true;
@@ -333,6 +364,12 @@ public class Board : MonoBehaviour {
         chevronText = chevronImg.GetComponentInChildren<TMP_Text>();
         chevronGauche = chevronImg.transform.Find("ChevronGauche").GetComponent<Image>();
         chevronDroit = chevronImg.transform.Find("ChevronDroite").GetComponent<Image>();
+        shieldAudioSource = shieldImg.GetComponent<AudioSource>();
+        ChevronAudioSource = chevronImg.GetComponent<AudioSource>();
+        baseCdMissileLauncher = cdMissileLauncher;
+        baseCdLaser = cdLaser;
+        baseCdNova = cdNova;
+        baseCdUltime = cdUltime;
         NbChevron = 0;
         opponentAlive = new List<int>();
         targetBy = new List<int>();
@@ -461,5 +498,13 @@ public class Board : MonoBehaviour {
             //}
             yield return new WaitForFixedUpdate();
         }
+    }
+
+    public void SpeedUpCd(float newSpeed)
+    {
+        cdMissileLauncher = baseCdMissileLauncher * newSpeed;
+        cdLaser = baseCdLaser * newSpeed;
+        cdNova = baseCdNova * newSpeed;
+        cdUltime = baseCdUltime * newSpeed;
     }
 }

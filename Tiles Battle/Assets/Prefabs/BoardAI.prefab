@@ -618,7 +618,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e4574934f8a114449e627010ae9d99b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 3
+  speed: 4
   accuracy: 95
   num: 0
   prefabBuildingImg:
@@ -651,6 +651,8 @@ MonoBehaviour:
   isBuildingOnTiles: 
   BuildingOnTiles: []
   tilesPv: 
+  chevronPrefab: {fileID: 1162941697851624, guid: 19f9cdbe2750c18458389f9357b1d0f0,
+    type: 2}
   targetBy: 
 --- !u!114 &114527106198610794
 MonoBehaviour:

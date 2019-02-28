@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class AI : MonoBehaviour {
 
@@ -23,6 +25,11 @@ public class AI : MonoBehaviour {
     public bool[] isBuildingOnTiles;
     public GameObject[] BuildingOnTiles;
     public int[] tilesPv;
+    public GameObject chevronPrefab;
+    private GameObject chevronImg;
+    private TMP_Text chevronText;
+    private Image chevronGauche;
+    private Image chevronDroit;
     private int nbTileDestroy;
 
     private Board board;
@@ -58,6 +65,7 @@ public class AI : MonoBehaviour {
             {
                 Board.opponentAlive.Remove(num);
                 Instantiate(KOPrefab, transform.position + transform.localScale.x * new Vector3(3, -3, 0), Quaternion.identity, Board.canvasFront);
+                chevronImg.SetActive(false);
                 //change les targets
                 string s = "targetBy before dead of " + num + "->" + targetBy.Count + " : ";
                 foreach (int i in targetBy)
@@ -102,6 +110,22 @@ public class AI : MonoBehaviour {
                         targetAI.PourcentageAttackBonus -= Board.bonusAttackFocus;
                     }
                     //print("REMOVE WHEN DEAD");
+                }
+                //augmente la speed des cd si plus que 10/5/2 joueurs
+                if(Board.opponentAlive.Count == 9 && board.IsAlive)
+                {
+                    print("speedup1");
+                    board.SpeedUpCd(0.8f);
+                }
+                else if (Board.opponentAlive.Count == 4 && board.IsAlive)
+                {
+                    print("speedup2");
+                    board.SpeedUpCd(0.6f);
+                }
+                else if (Board.opponentAlive.Count == 1 && board.IsAlive)
+                {
+                    print("speedup3");
+                    board.SpeedUpCd(0.4f);
                 }
             }
         }
@@ -169,7 +193,32 @@ public class AI : MonoBehaviour {
 
         set
         {
+            if (nbChevron < 25 && value >= 25)
+            {
+                PourcentageAttackBonus += 25 * (value / 25);
+                PourcentageDefenseBonus += 25 * (value / 25);
+            }
+            else if (nbChevron < 50 && value >= 50)
+            {
+                PourcentageAttackBonus += 25 * ((value / 25) - 1);
+                PourcentageDefenseBonus += 25 * ((value / 25) - 1);
+            }
+            else if (nbChevron < 75 && value >= 75)
+            {
+                PourcentageAttackBonus += 25 * ((value / 25) - 2);
+                PourcentageDefenseBonus += 25 * ((value / 25) - 2);
+            }
+            else if (nbChevron < 100 && value >= 100)
+            {
+                PourcentageAttackBonus += 25;
+                PourcentageDefenseBonus += 25;
+            }
             nbChevron = value;
+            if (nbChevron > 100) nbChevron = 100;
+            //chevronText.text = "" + nbChevron;
+            //fill amount max = 0.75, fill amount min = 0.2
+            chevronGauche.fillAmount = 0.2f + 0.55f * ((float)nbChevron / 100f);
+            chevronDroit.fillAmount = 0.2f + 0.55f * ((float)nbChevron / 100f);
         }
     }
 
@@ -209,21 +258,29 @@ public class AI : MonoBehaviour {
                     NbShield -= Board.nbShieldCore;
                 }
                 Destroy(BuildingOnTiles[indexTile]);
+                isBuildingOnTiles[indexTile] = false;
             }
             if (nbTileDestroy >= Board.nbTileDestroyToLose)
             {
                 IsAlive = false;
                 nbChevronGranted += (NbChevron+1) / 2;
+                if (hitBy == board.num)
+                {
+                    board.ChevronAudioSource.PlayOneShot(board.soundKillOpponent);
+                }
             }
         }
 
-        if (hitBy == board.num)
+        if(tilesPv[indexTile] == 0 || tilesPv[indexTile] == 1)
         {
-            board.NbChevron += nbChevronGranted;
-        }
-        else
-        {
-            board.allOpponentBoard[hitBy].GetComponent<AI>().NbChevron += nbChevronGranted;
+            if (hitBy == board.num)
+            {
+                board.NbChevron += nbChevronGranted;
+            }
+            else
+            {
+                board.allOpponentBoard[hitBy].GetComponent<AI>().NbChevron += nbChevronGranted;
+            }
         }
     }
 
@@ -246,6 +303,16 @@ public class AI : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
+        float posChevronX = 8f;
+        if (num % 2 == 0) posChevronX = -2f;
+        chevronImg = Instantiate(chevronPrefab, transform.position + transform.localScale.x * new Vector3(posChevronX, -3f, 0), Quaternion.identity, Board.canvasFront);
+        chevronImg.transform.localScale *= transform.localScale.x * 1.5f;
+        chevronGauche = chevronImg.transform.Find("ChevronGauche").GetComponent<Image>();
+        chevronDroit = chevronImg.transform.Find("ChevronDroite").GetComponent<Image>();
+        //chevronText = chevronImg.GetComponentInChildren<TMP_Text>();
+        chevronImg.transform.Find("ChevronText").gameObject.SetActive(false);
+        chevronImg.transform.Find("ChevronBG").GetComponent<Image>().enabled = false;
+        NbChevron = 0;
         //choix du build order
         buildOrderDefensif = new int[7] { 4, 2, 4, 0, 1, 1, 3 };
         buildOrderClassic = new int[7] { 3, 5, 2, 2, 1, 1, 3 };
@@ -332,7 +399,7 @@ public class AI : MonoBehaviour {
                 List<int> tilesWithNoBuilding = new List<int>();
                 for (int i = 0; i < isBuildingOnTiles.Length; i++)
                 {
-                    if(isBuildingOnTiles[i] == false)
+                    if(isBuildingOnTiles[i] == false && tilesPv[i] > 0)
                     {
                         tilesWithNoBuilding.Add(i);
                     }
@@ -357,7 +424,7 @@ public class AI : MonoBehaviour {
                 List<int> tilesWithNoBuilding = new List<int>();
                 for (int i = 0; i < isBuildingOnTiles.Length; i++)
                 {
-                    if (isBuildingOnTiles[i] == false)
+                    if (isBuildingOnTiles[i] == false && tilesPv[i] > 0)
                     {
                         tilesWithNoBuilding.Add(i);
                     }
@@ -382,7 +449,7 @@ public class AI : MonoBehaviour {
                 List<int> tilesWithNoBuilding = new List<int>();
                 for (int i = 0; i < isBuildingOnTiles.Length; i++)
                 {
-                    if (isBuildingOnTiles[i] == false)
+                    if (isBuildingOnTiles[i] == false && tilesPv[i] > 0)
                     {
                         tilesWithNoBuilding.Add(i);
                     }
@@ -406,7 +473,7 @@ public class AI : MonoBehaviour {
                 List<int> tilesWithNoBuilding = new List<int>();
                 for (int i = 0; i < isBuildingOnTiles.Length; i++)
                 {
-                    if (isBuildingOnTiles[i] == false)
+                    if (isBuildingOnTiles[i] == false && tilesPv[i] > 0)
                     {
                         tilesWithNoBuilding.Add(i);
                     }
@@ -430,7 +497,7 @@ public class AI : MonoBehaviour {
                 List<int> tilesWithNoBuilding = new List<int>();
                 for (int i = 0; i < isBuildingOnTiles.Length; i++)
                 {
-                    if (isBuildingOnTiles[i] == false)
+                    if (isBuildingOnTiles[i] == false && tilesPv[i] > 0)
                     {
                         tilesWithNoBuilding.Add(i);
                     }
@@ -454,7 +521,7 @@ public class AI : MonoBehaviour {
                 List<int> tilesWithNoBuilding = new List<int>();
                 for (int i = 0; i < isBuildingOnTiles.Length; i++)
                 {
-                    if (isBuildingOnTiles[i] == false)
+                    if (isBuildingOnTiles[i] == false && tilesPv[i] > 0)
                     {
                         tilesWithNoBuilding.Add(i);
                     }
@@ -478,7 +545,7 @@ public class AI : MonoBehaviour {
                 List<int> tilesWithNoBuilding = new List<int>();
                 for (int i = 0; i < isBuildingOnTiles.Length; i++)
                 {
-                    if (isBuildingOnTiles[i] == false)
+                    if (isBuildingOnTiles[i] == false && tilesPv[i] > 0)
                     {
                         tilesWithNoBuilding.Add(i);
                     }
@@ -488,6 +555,26 @@ public class AI : MonoBehaviour {
                     score -= Board.buildingPrice[buildOrder[6]];
                     nbBuilding[buildOrder[6]]++;
                     int rng = Random.Range(0, tilesWithNoBuilding.Count);
+                    GameObject laserImg = Instantiate(prefabBuildingImg[buildOrder[6]], tiles[tilesWithNoBuilding[rng]].transform.position, Quaternion.identity, Board.canvas);
+                    laserImg.transform.localScale = transform.localScale;
+                    laserImg.GetComponent<Building>().enabled = false;
+                    BuildingOnTiles[tilesWithNoBuilding[rng]] = laserImg;
+                    isBuildingOnTiles[tilesWithNoBuilding[rng]] = true;
+                    StartCoroutine("Laser", tilesWithNoBuilding[rng]);
+                }
+                else
+                {
+                    for (int i = 0; i < isBuildingOnTiles.Length; i++)
+                    {
+                        if (isBuildingOnTiles[i] && BuildingOnTiles[i].GetComponent<Building>().numBuilding == 0 && tilesPv[i] > 0)
+                        {
+                            tilesWithNoBuilding.Add(i);
+                        }
+                    }
+                    score -= Board.buildingPrice[buildOrder[6]];
+                    nbBuilding[buildOrder[6]]++;
+                    int rng = Random.Range(0, tilesWithNoBuilding.Count);
+                    Destroy(BuildingOnTiles[tilesWithNoBuilding[rng]]);
                     GameObject laserImg = Instantiate(prefabBuildingImg[buildOrder[6]], tiles[tilesWithNoBuilding[rng]].transform.position, Quaternion.identity, Board.canvas);
                     laserImg.transform.localScale = transform.localScale;
                     laserImg.GetComponent<Building>().enabled = false;
@@ -579,7 +666,7 @@ public class AI : MonoBehaviour {
 
     IEnumerator Generator(int indexTileBuilding)
     {
-        while (IsAlive && isBuildingOnTiles[indexTileBuilding])
+        while (IsAlive && isBuildingOnTiles[indexTileBuilding] && BuildingOnTiles[indexTileBuilding].GetComponent<Building>().numBuilding == 0)
         {
             for (int i = 0; i < 25; i++)
             {
@@ -620,7 +707,7 @@ public class AI : MonoBehaviour {
             Instantiate(attackPrefab, tileTarget.position + new Vector3(0,0,-1), Quaternion.identity, tileTarget);
             tileTarget.GetComponent<Tile>().NbAttack++;*/
             yield return new WaitForSeconds(Board.cdMissileLauncher);
-            if (IsAlive)
+            if (IsAlive && isBuildingOnTiles[indexTileBuilding])
             {
                 StartCoroutine("LaunchMissileLauncher");
             }
@@ -691,7 +778,7 @@ public class AI : MonoBehaviour {
         while (IsAlive && isBuildingOnTiles[indexTileBuilding])
         {
             yield return new WaitForSeconds(Board.cdLaser);
-            if (IsAlive)
+            if (IsAlive && isBuildingOnTiles[indexTileBuilding])
             {
                 StartCoroutine("LaunchLaser");
             }
@@ -763,7 +850,7 @@ public class AI : MonoBehaviour {
             }
             else if (aliveHorizontal.Count < aliveVertical.Count)
             {
-                foreach (Tile t in aliveHorizontal)
+                foreach (Tile t in aliveVertical)
                 {
                     tilesLaser.Add(t);
                 }
@@ -779,7 +866,7 @@ public class AI : MonoBehaviour {
                 }
                 else
                 {
-                    foreach (Tile t in aliveHorizontal)
+                    foreach (Tile t in aliveVertical)
                     {
                         tilesLaser.Add(t);
                     }
@@ -892,7 +979,7 @@ public class AI : MonoBehaviour {
         while (IsAlive && isBuildingOnTiles[indexTileBuilding])
         {
             yield return new WaitForSeconds(Board.cdUltime);
-            if (IsAlive)
+            if (IsAlive && isBuildingOnTiles[indexTileBuilding])
             {
                 StartCoroutine("LaunchUltime");
             }

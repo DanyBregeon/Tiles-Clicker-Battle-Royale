@@ -112,6 +112,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   numBuilding: 4
+  maxBuildingOfThisType: 1
   cdReady: 0
 --- !u!222 &222302803800682844
 CanvasRenderer:

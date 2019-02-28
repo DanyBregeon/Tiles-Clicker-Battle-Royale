@@ -252,12 +252,22 @@ Prefab:
     - target: {fileID: 114216682159186782, guid: 17fc6362c86e1d14ca37f42e82745e9d,
         type: 2}
       propertyPath: m_fontSize
-      value: 24
+      value: 18
       objectReference: {fileID: 0}
     - target: {fileID: 114216682159186782, guid: 17fc6362c86e1d14ca37f42e82745e9d,
         type: 2}
       propertyPath: m_fontSizeBase
-      value: 24
+      value: 18
+      objectReference: {fileID: 0}
+    - target: {fileID: 114216682159186782, guid: 17fc6362c86e1d14ca37f42e82745e9d,
+        type: 2}
+      propertyPath: m_firstOverflowCharacterIndex
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 224871961811645946, guid: 17fc6362c86e1d14ca37f42e82745e9d,
+        type: 2}
+      propertyPath: m_SizeDelta.x
+      value: 46
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 17fc6362c86e1d14ca37f42e82745e9d, type: 2}
@@ -3342,17 +3352,22 @@ Prefab:
     - target: {fileID: 114288893305579892, guid: 19f9cdbe2750c18458389f9357b1d0f0,
         type: 2}
       propertyPath: m_havePropertiesChanged
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 114288893305579892, guid: 19f9cdbe2750c18458389f9357b1d0f0,
         type: 2}
       propertyPath: m_isInputParsingRequired
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 114974766442829010, guid: 19f9cdbe2750c18458389f9357b1d0f0,
         type: 2}
       propertyPath: m_FillAmount
-      value: 1
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114970067986614188, guid: 19f9cdbe2750c18458389f9357b1d0f0,
+        type: 2}
+      propertyPath: m_FillAmount
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 19f9cdbe2750c18458389f9357b1d0f0, type: 2}
@@ -3435,8 +3450,9 @@ MonoBehaviour:
   soundEnergyAttack: {fileID: 8300000, guid: 5d8f2895a11f9ec47907bf8d84d9a501, type: 3}
   soundNovaAttack: {fileID: 8300000, guid: eaffbb6319d674e44855a8ed65f14199, type: 3}
   soundUltimeAttack: {fileID: 8300000, guid: 975e997fbf83d534ebb0c5829b6022b9, type: 3}
-  soundBadgeWin: {fileID: 8300000, guid: 3fe25aae33f86d140b2272769a925b53, type: 3}
-  soundKillOpponent: {fileID: 8300000, guid: 2e5b2796c01a113449b6a6806f14f8fb, type: 3}
+  soundBadgeWin: {fileID: 8300000, guid: 2e5b2796c01a113449b6a6806f14f8fb, type: 3}
+  soundKillOpponent: {fileID: 8300000, guid: 3fe25aae33f86d140b2272769a925b53, type: 3}
+  soundShieldBlock: {fileID: 8300000, guid: 7b716d00716d8e842a16d7a5bc9fa769, type: 3}
   soundGameOver: {fileID: 8300000, guid: b5998a467446a564f895a0762570d6c0, type: 3}
   soundWin: {fileID: 8300000, guid: bc54e4d8e624da1499545fc787afdfc9, type: 3}
   isBuilding: 0

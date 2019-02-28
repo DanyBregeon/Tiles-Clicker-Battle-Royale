@@ -80,6 +80,8 @@ public class Tile : MonoBehaviour {
                 CurrentColor = destroyColor;
                 if(building != null)
                 {
+                    if (building.numBuilding == 4) board.buildingNovaIsBuild = false;
+                    if (building.numBuilding == 5) board.buildingUltimeIsBuild = false;
                     Destroy(building.gameObject);
                 }
             }
@@ -176,8 +178,6 @@ public class Tile : MonoBehaviour {
         board = GameObject.Find("Board").GetComponent<Board>();
         image = GetComponent<SpriteRenderer>();
         audioSource = GetComponent<AudioSource>();
-        textNbAttack = Instantiate(board.textProfitPrefab, transform.position, transform.rotation, Board.canvasFront).GetComponent<TMP_Text>();
-        textNbAttack.color = Color.white;
         Pv = 2;
         CurrentColor = new Color(1, 1, 1, 0.8f);
         ressourceColor = new Color(0, 0.8f, 0.8f, 0.8f);
@@ -186,9 +186,15 @@ public class Tile : MonoBehaviour {
         damageColor = new Color(0.7f, 0.7f, 0.7f, 0.7f);
         destroyColor = new Color(0.1f, 0.1f, 0.1f, 0.6f);
     }
-	
-	// Update is called once per frame
-	void Update () {
+
+    private void Start()
+    {
+        textNbAttack = Instantiate(board.textProfitPrefab, transform.position, transform.rotation, Board.canvasFront).GetComponent<TMP_Text>();
+        textNbAttack.color = Color.white;
+    }
+
+    // Update is called once per frame
+    void Update () {
 
     }
 
@@ -251,22 +257,29 @@ public class Tile : MonoBehaviour {
         }
         else
         {
-            if(building == null)
+            if (!IsDestroy)
             {
                 board.buildingImg.transform.position = transform.position;
                 if (Input.GetKeyDown(button1) || Input.GetKeyDown(button2) || Input.GetKeyDown(button3))
                 {
                     board.focusBoard.color = new Color(0, 0, 0, 0);
-                    //create building
                     board.isBuilding = false;
                     Destroy(board.buildingImg);
                     board.Score -= Board.buildingPrice[board.building.GetComponent<Building>().numBuilding];
-                    //building = Instantiate(board.building, transform.position, transform.rotation, transform);
+                    //Destroy previous building
+                    if (building != null)
+                    {
+                        if (building.numBuilding == 4) board.buildingNovaIsBuild = false;
+                        if (building.numBuilding == 5) board.buildingUltimeIsBuild = false;
+                        Destroy(building.gameObject);
+                    }
+                    //create building
                     GameObject instance = Instantiate(board.building, transform.position, transform.rotation, Board.canvas);
                     building = instance.GetComponent<Building>();
+                    if (building.numBuilding == 4) board.buildingNovaIsBuild = true;
+                    if (building.numBuilding == 5) board.buildingUltimeIsBuild = true;
                 }
             }
-
         }
     }
 
