@@ -19,9 +19,9 @@ public class Board : MonoBehaviour {
     public static int bonusDefenseMissileLauncher = 5;
     public static int nbShieldCore = 5;
     public static float cdMissileLauncher = 15;
-    public static float cdLaser = 45;
-    public static float cdNova = 60;
-    public static float cdUltime = 60;
+    public static float cdLaser = 30;
+    public static float cdNova = 45;
+    public static float cdUltime = 45;
     public static float baseARTime = 1.5f;
     public static int nbPlayer = 17;
     public static int nbTileDestroyToLose = 5;
@@ -50,6 +50,9 @@ public class Board : MonoBehaviour {
     public AudioClip soundShieldBlock;
     public AudioClip soundGameOver;
     public AudioClip soundWin;
+
+    public GameObject endGame;
+    private bool isGameFinish;
 
     public bool isBuilding;
     public GameObject buildingImg;
@@ -140,7 +143,7 @@ public class Board : MonoBehaviour {
             if(nbTileDestroy >= nbTileDestroyToLose)
             {
                 IsAlive = false;
-                Debug.Break();
+                //Debug.Break();
             }
         }
     }
@@ -205,6 +208,12 @@ public class Board : MonoBehaviour {
             if (!isAlive)
             {
                 allOpponentBoard[lastHitBy].GetComponent<AI>().NbChevron += 2;
+                List<int> targetBy2 = new List<int>(targetBy);
+                foreach (int i in targetBy2)
+                {
+                    allOpponentBoard[i].GetComponent<AI>().ChangeTarget();
+                }
+                EndGame();
             }
         }
     }
@@ -218,7 +227,7 @@ public class Board : MonoBehaviour {
 
         set
         {
-            if (value - nbShield > 0) currentNbShield += value - nbShield;
+            /*if (value - nbShield > 0)*/ currentNbShield += value - nbShield;
             nbShield = value;
             if (currentNbShield == nbShield)
             {
@@ -312,7 +321,8 @@ public class Board : MonoBehaviour {
         set
         {
             currentNbShield = value;
-            if(currentNbShield == NbShield)
+            if (currentNbShield < 0) currentNbShield = 0;
+            if (currentNbShield == NbShield)
             {
                 shieldText.text = "" + currentNbShield;
             }
@@ -348,6 +358,19 @@ public class Board : MonoBehaviour {
         set
         {
             chevronAudioSource = value;
+        }
+    }
+
+    public bool IsGameFinish
+    {
+        get
+        {
+            return isGameFinish;
+        }
+
+        set
+        {
+            isGameFinish = value;
         }
     }
 
@@ -506,5 +529,21 @@ public class Board : MonoBehaviour {
         cdLaser = baseCdLaser * newSpeed;
         cdNova = baseCdNova * newSpeed;
         cdUltime = baseCdUltime * newSpeed;
+    }
+
+    public void EndGame()
+    {
+        int rank = (opponentAlive.Count + 1);
+        if (rank == 1)
+        {
+            audioSource.PlayOneShot(soundWin);
+        }
+        else
+        {
+            audioSource.PlayOneShot(soundGameOver);
+        }
+        endGame.SetActive(true);
+        endGame.transform.Find("ImageRank").Find("TextRank").GetComponent<TMP_Text>().text = "" + rank;
+        IsGameFinish = true;
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class Tile : MonoBehaviour {
 
@@ -202,7 +203,7 @@ public class Tile : MonoBehaviour {
     {
         if (!board.isBuilding)
         {
-            if ((Input.GetKeyDown(button1) || Input.GetKeyDown(button2) || Input.GetKeyDown(button3)))
+            if ((Input.GetKeyDown(button1) || Input.GetKeyDown(button2) || Input.GetKeyDown(button3)) && !board.IsGameFinish)
             {
                 if (NbAttack != 0)
                 {

@@ -7,6 +7,7 @@ public class OpponentBoard : MonoBehaviour {
     private SpriteRenderer targetImg;
     private SpriteRenderer targetByImg;
     private Board board;
+    private AI ai;
 
     public SpriteRenderer TargetImg
     {
@@ -39,6 +40,7 @@ public class OpponentBoard : MonoBehaviour {
         TargetImg = transform.Find("target").GetComponent<SpriteRenderer>();
         TargetByImg = transform.Find("targetBy").GetComponent<SpriteRenderer>();
         board = GameObject.Find("Board").GetComponent<Board>();
+        ai = GetComponent<AI>();
     }
 	
 	// Update is called once per frame
@@ -48,7 +50,7 @@ public class OpponentBoard : MonoBehaviour {
 
     private void OnMouseOver()
     {
-        if ((Input.GetKeyDown(Tile.button1) || Input.GetKeyDown(Tile.button2) || Input.GetKeyDown(Tile.button3)))
+        if ((Input.GetKeyDown(Tile.button1) || Input.GetKeyDown(Tile.button2) || Input.GetKeyDown(Tile.button3)) && !board.IsGameFinish && ai.IsAlive)
         {
             board.Target = gameObject;
         }

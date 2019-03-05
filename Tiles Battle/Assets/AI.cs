@@ -51,6 +51,10 @@ public class AI : MonoBehaviour {
     private int[] buildOrderAggressif;
     private int[] buildOrder;
 
+    private float timeLastMissileLauncher;
+    private float timeLastLaser;
+    private float maxTimeToSynchroAttacks = 2;
+
     public bool IsAlive
     {
         get
@@ -79,7 +83,10 @@ public class AI : MonoBehaviour {
                     if(i == board.num) //si c'est le joueur
                     {
                         print("Le joueur " + i + " change de cible suite à la mort de " + num);
-                        board.Target = board.allOpponentBoard[Board.opponentAlive[Random.Range(0, Board.opponentAlive.Count)]];
+                        if(Board.opponentAlive.Count > 0)
+                        {
+                            board.Target = board.allOpponentBoard[Board.opponentAlive[Random.Range(0, Board.opponentAlive.Count)]];
+                        }
                     }
                     else //si c'est une ia
                     {
@@ -112,6 +119,7 @@ public class AI : MonoBehaviour {
                     //print("REMOVE WHEN DEAD");
                 }
                 //augmente la speed des cd si plus que 10/5/2 joueurs
+                print(Board.opponentAlive.Count);
                 if(Board.opponentAlive.Count == 9 && board.IsAlive)
                 {
                     print("speedup1");
@@ -126,6 +134,10 @@ public class AI : MonoBehaviour {
                 {
                     print("speedup3");
                     board.SpeedUpCd(0.4f);
+                }else if (Board.opponentAlive.Count == 0 && board.IsAlive)
+                {
+                    print("win !");
+                    board.EndGame();
                 }
             }
         }
@@ -420,27 +432,32 @@ public class AI : MonoBehaviour {
             }
             else if (score >= Board.buildingPrice[1] && nbBuilding[0] >= buildOrder[0] && nbBuilding[1] < buildOrder[1])
             {
-                //build missileLauncher
-                List<int> tilesWithNoBuilding = new List<int>();
-                for (int i = 0; i < isBuildingOnTiles.Length; i++)
+                float timeSynchro = (Time.time - timeLastMissileLauncher) % Board.cdMissileLauncher;
+                if (nbBuilding[1] == 0 || timeSynchro <= maxTimeToSynchroAttacks || timeSynchro >= Board.cdMissileLauncher - maxTimeToSynchroAttacks)
                 {
-                    if (isBuildingOnTiles[i] == false && tilesPv[i] > 0)
+                    timeLastMissileLauncher = Time.time;
+                    //build missileLauncher
+                    List<int> tilesWithNoBuilding = new List<int>();
+                    for (int i = 0; i < isBuildingOnTiles.Length; i++)
                     {
-                        tilesWithNoBuilding.Add(i);
+                        if (isBuildingOnTiles[i] == false && tilesPv[i] > 0)
+                        {
+                            tilesWithNoBuilding.Add(i);
+                        }
                     }
-                }
-                if (tilesWithNoBuilding.Count > 0)
-                {
-                    score -= Board.buildingPrice[1];
-                    nbBuilding[1]++;
-                    int rng = Random.Range(0, tilesWithNoBuilding.Count);
-                    GameObject missileLauncherImg = Instantiate(prefabBuildingImg[1], tiles[tilesWithNoBuilding[rng]].transform.position, Quaternion.identity, Board.canvas);
-                    missileLauncherImg.transform.localScale = transform.localScale;
-                    missileLauncherImg.GetComponent<Building>().enabled = false;
-                    BuildingOnTiles[tilesWithNoBuilding[rng]] = missileLauncherImg;
-                    isBuildingOnTiles[tilesWithNoBuilding[rng]] = true;
-                    PourcentageDefenseBonus += Board.bonusDefenseMissileLauncher;
-                    StartCoroutine("MissileLauncher", tilesWithNoBuilding[rng]);
+                    if (tilesWithNoBuilding.Count > 0)
+                    {
+                        score -= Board.buildingPrice[1];
+                        nbBuilding[1]++;
+                        int rng = Random.Range(0, tilesWithNoBuilding.Count);
+                        GameObject missileLauncherImg = Instantiate(prefabBuildingImg[1], tiles[tilesWithNoBuilding[rng]].transform.position, Quaternion.identity, Board.canvas);
+                        missileLauncherImg.transform.localScale = transform.localScale;
+                        missileLauncherImg.GetComponent<Building>().enabled = false;
+                        BuildingOnTiles[tilesWithNoBuilding[rng]] = missileLauncherImg;
+                        isBuildingOnTiles[tilesWithNoBuilding[rng]] = true;
+                        PourcentageDefenseBonus += Board.bonusDefenseMissileLauncher;
+                        StartCoroutine("MissileLauncher", tilesWithNoBuilding[rng]);
+                    }
                 }
             }
             else if (score >= Board.buildingPrice[2] && nbBuilding[0] >= buildOrder[0] && nbBuilding[1] >= buildOrder[1] && nbBuilding[2] < buildOrder[2])
@@ -469,27 +486,32 @@ public class AI : MonoBehaviour {
             }
             else if (score >= Board.buildingPrice[3] && nbBuilding[0] >= buildOrder[0] && nbBuilding[1] >= buildOrder[1] && nbBuilding[2] >= buildOrder[2] && nbBuilding[3] < buildOrder[3])
             {
-                //build laser
-                List<int> tilesWithNoBuilding = new List<int>();
-                for (int i = 0; i < isBuildingOnTiles.Length; i++)
+                float timeSynchro = (Time.time - timeLastLaser) % Board.cdLaser;
+                if (nbBuilding[3] == 0 || timeSynchro <= maxTimeToSynchroAttacks || timeSynchro >= Board.cdLaser - maxTimeToSynchroAttacks)
                 {
-                    if (isBuildingOnTiles[i] == false && tilesPv[i] > 0)
+                    timeLastLaser = Time.time;
+                    //build laser
+                    List<int> tilesWithNoBuilding = new List<int>();
+                    for (int i = 0; i < isBuildingOnTiles.Length; i++)
                     {
-                        tilesWithNoBuilding.Add(i);
+                        if (isBuildingOnTiles[i] == false && tilesPv[i] > 0)
+                        {
+                            tilesWithNoBuilding.Add(i);
+                        }
                     }
-                }
-                if (tilesWithNoBuilding.Count > 0)
-                {
-                    score -= Board.buildingPrice[3];
-                    nbBuilding[3]++;
-                    int rng = Random.Range(0, tilesWithNoBuilding.Count);
-                    GameObject laserImg = Instantiate(prefabBuildingImg[3], tiles[tilesWithNoBuilding[rng]].transform.position, Quaternion.identity, Board.canvas);
-                    laserImg.transform.localScale = transform.localScale;
-                    laserImg.GetComponent<Building>().enabled = false;
-                    BuildingOnTiles[tilesWithNoBuilding[rng]] = laserImg;
-                    isBuildingOnTiles[tilesWithNoBuilding[rng]] = true;
-                    StartCoroutine("Laser", tilesWithNoBuilding[rng]);
-                }
+                    if (tilesWithNoBuilding.Count > 0)
+                    {
+                        score -= Board.buildingPrice[3];
+                        nbBuilding[3]++;
+                        int rng = Random.Range(0, tilesWithNoBuilding.Count);
+                        GameObject laserImg = Instantiate(prefabBuildingImg[3], tiles[tilesWithNoBuilding[rng]].transform.position, Quaternion.identity, Board.canvas);
+                        laserImg.transform.localScale = transform.localScale;
+                        laserImg.GetComponent<Building>().enabled = false;
+                        BuildingOnTiles[tilesWithNoBuilding[rng]] = laserImg;
+                        isBuildingOnTiles[tilesWithNoBuilding[rng]] = true;
+                        StartCoroutine("Laser", tilesWithNoBuilding[rng]);
+                    }
+                } 
             }
             else if (score >= Board.buildingPrice[4] && nbBuilding[0] >= buildOrder[0] && nbBuilding[1] >= buildOrder[1] && nbBuilding[2] >= buildOrder[2] && nbBuilding[3] >= buildOrder[3] && nbBuilding[4] < buildOrder[4])
             {
@@ -615,41 +637,45 @@ public class AI : MonoBehaviour {
             }
         }
 
-        int rngAlive = Random.Range(0, Board.opponentAlive.Count);
-        target = Board.opponentAlive[rngAlive];
-        if (target == num) //si la cible est lui même, la cible devient le joueur (numJoueur = 17)(si joueur vivant)
+        if(Board.opponentAlive.Count > 0)
         {
-            if (board.IsAlive)
+            int rngAlive = Random.Range(0, Board.opponentAlive.Count);
+            target = Board.opponentAlive[rngAlive];
+            if (target == num) //si la cible est lui même, la cible devient le joueur (numJoueur = 17)(si joueur vivant)
             {
-                target = board.num;
+                if (board.IsAlive)
+                {
+                    target = board.num;
+                }
+                else
+                {
+                    target = Board.opponentAlive[(rngAlive + 1) % (Board.opponentAlive.Count)];
+                }
+
+            }
+            if (target == board.num)
+            {
+                board.targetBy.Add(num);
+                GetComponent<OpponentBoard>().TargetByImg.enabled = true;
+                if (board.targetBy.Count >= 2)
+                {
+                    board.PourcentageDefenseBonus += Board.bonusDefenseFocus;
+                    board.PourcentageAttackBonus += Board.bonusAttackFocus;
+                }
             }
             else
             {
-                target = Board.opponentAlive[(rngAlive + 1) % (Board.opponentAlive.Count)];
-            }
-
-        }
-        if (target == board.num)
-        {
-            board.targetBy.Add(num);
-            GetComponent<OpponentBoard>().TargetByImg.enabled = true;
-            if (board.targetBy.Count >= 2)
-            {
-                board.PourcentageDefenseBonus += Board.bonusDefenseFocus;
-                board.PourcentageAttackBonus += Board.bonusAttackFocus;
+                AI targetAI = board.allOpponentBoard[target].GetComponent<AI>();
+                targetAI.targetBy.Add(num);
+                if (targetAI.targetBy.Count >= 2)
+                {
+                    targetAI.PourcentageDefenseBonus += Board.bonusDefenseFocus;
+                    targetAI.PourcentageAttackBonus += Board.bonusAttackFocus;
+                }
+                //print(target + "by->" + board.allOpponentBoard[target].GetComponent<AI>().targetBy.Count + "  " + num);
             }
         }
-        else
-        {
-            AI targetAI = board.allOpponentBoard[target].GetComponent<AI>();
-            targetAI.targetBy.Add(num);
-            if (targetAI.targetBy.Count >= 2)
-            {
-                targetAI.PourcentageDefenseBonus += Board.bonusDefenseFocus;
-                targetAI.PourcentageAttackBonus += Board.bonusAttackFocus;
-            }
-            //print(target + "by->" + board.allOpponentBoard[target].GetComponent<AI>().targetBy.Count + "  " + num);
-        }
+        
     }
 
     IEnumerator ChangeTargetOverTime()
