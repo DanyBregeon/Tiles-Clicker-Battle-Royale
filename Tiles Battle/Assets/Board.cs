@@ -429,7 +429,7 @@ public class Board : MonoBehaviour {
                 s += i + "->" + allOpponentBoard[i].GetComponent<AI>().Target + "  ";
             }
         }
-        print(s);
+        //print(s);
 
         string s2 = "targetBy : ";
         foreach (int ai in opponentAlive)
@@ -441,7 +441,9 @@ public class Board : MonoBehaviour {
             }
             s2 += "; ";
         }
-        print(s2);
+        //print(s2);
+
+
         /*if(Target != null && !Target.GetComponent<AI>().IsAlive)
         {
             print("Target de la target : " + Target.GetComponent<AI>().Target);
@@ -534,16 +536,19 @@ public class Board : MonoBehaviour {
     public void EndGame()
     {
         int rank = (opponentAlive.Count + 1);
+        endGame.SetActive(true);
+        endGame.transform.Find("ImageRank").Find("TextRank").GetComponent<TMP_Text>().text = "" + rank;
         if (rank == 1)
         {
             audioSource.PlayOneShot(soundWin);
+            endGame.transform.Find("ImageRank").gameObject.SetActive(false);
+            endGame.transform.Find("ImageRank1").gameObject.SetActive(true);
         }
         else
         {
             audioSource.PlayOneShot(soundGameOver);
         }
-        endGame.SetActive(true);
-        endGame.transform.Find("ImageRank").Find("TextRank").GetComponent<TMP_Text>().text = "" + rank;
+
         IsGameFinish = true;
     }
 }

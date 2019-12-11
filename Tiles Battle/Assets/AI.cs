@@ -315,6 +315,12 @@ public class AI : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
+        if(SceneConstant.sc != null)
+        {
+            speed = SceneConstant.sc.speedByDifficulty[SceneConstant.sc.difficulty];
+            accuracy = SceneConstant.sc.accuracyByDifficulty[SceneConstant.sc.difficulty];
+        }
+
         float posChevronX = 8f;
         if (num % 2 == 0) posChevronX = -2f;
         chevronImg = Instantiate(chevronPrefab, transform.position + transform.localScale.x * new Vector3(posChevronX, -3f, 0), Quaternion.identity, Board.canvasFront);
@@ -636,8 +642,8 @@ public class AI : MonoBehaviour {
                 //print("REMOVE WHEN CHANGE");
             }
         }
-
-        if(Board.opponentAlive.Count > 0)
+        int boolInt = board.IsAlive ? 1 : 0;
+        if (Board.opponentAlive.Count + boolInt > 1)
         {
             int rngAlive = Random.Range(0, Board.opponentAlive.Count);
             target = Board.opponentAlive[rngAlive];

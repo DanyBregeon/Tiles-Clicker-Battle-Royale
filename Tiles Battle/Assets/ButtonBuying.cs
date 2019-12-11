@@ -16,7 +16,7 @@ public class ButtonBuying : MonoBehaviour {
     void Start () {
         board = GameObject.Find("Board").GetComponent<Board>();
         priceText = GetComponentInChildren<TMP_Text>();
-        shortcut = (KeyCode)System.Enum.Parse(typeof(KeyCode), transform.Find("ShortCut").GetComponent<TMP_Text>().text);
+        shortcut = (KeyCode)System.Enum.Parse(typeof(KeyCode), "Alpha" + transform.Find("ShortCut").GetComponent<TMP_Text>().text);
     }
 	
 	// Update is called once per frame

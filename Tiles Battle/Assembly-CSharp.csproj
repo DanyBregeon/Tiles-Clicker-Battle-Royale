@@ -71,7 +71,9 @@
     <Compile Include="Assets\ButtonBuying.cs" />
     <Compile Include="Assets\FollowCursor.cs" />
     <Compile Include="Assets\Menu.cs" />
+    <Compile Include="Assets\MenuManager.cs" />
     <Compile Include="Assets\OpponentBoard.cs" />
+    <Compile Include="Assets\SceneConstant.cs" />
     <Compile Include="Assets\Tile.cs" />
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF-Surface-Mobile.shader" />
     <None Include="Assets\TextMesh Pro\Resources\LineBreaking Leading Characters.txt" />
